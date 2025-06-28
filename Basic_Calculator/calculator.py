@@ -1,104 +1,139 @@
 import tkinter as tk
+from math import sqrt
 
-root = tk.Tk()
-root.title("Styled Basic Calculator")
-root.geometry("320x450")
-root.resizable(False, False)
-root.configure(bg="#282c34")
-
+# Memory storage
+memory = 0
 expression = ""
 
-equation = tk.StringVar()
-equation.set("0")
+# Create main window
+root = tk.Tk()
+root.title("Advanced Calculator")
+root.geometry("400x520")
+root.configure(bg="#2c3e50")
+root.resizable(False, False)
 
-# Display entry
-display = tk.Entry(root, textvariable=equation, font=("Segoe UI", 24), bd=0,
-                   bg="#1e222a", fg="#ffffff", justify="right", relief="flat",
-                   highlightthickness=2, highlightbackground="#444a57", highlightcolor="#ff9500")
-display.pack(fill="x", ipady=15, padx=15, pady=20)
+input_text = tk.StringVar()
 
-btns_frame = tk.Frame(root, bg="#282c34")
-btns_frame.pack(expand=True, fill="both")
+# Entry field
+entry = tk.Entry(root, textvariable=input_text, font=("Segoe UI", 22), bd=0, bg="#ecf0f1",
+                 fg="#2c3e50", justify="right")
+entry.grid(row=0, column=0, columnspan=4, ipadx=8, ipady=20, padx=10, pady=20, sticky="nsew")
 
-btn_bg = "#5c6170"
-btn_fg = "#f0f0f0"
-op_bg = "#ff9500"
-op_fg = "#fff"
-btn_font = ("Segoe UI", 18, "bold")
-btn_active_bg = "#707683"
-op_active_bg = "#ffb84d"
-
-def on_enter(e):
-    e.widget['background'] = btn_active_bg if e.widget['bg'] == btn_bg else op_active_bg
-
-def on_leave(e):
-    e.widget['background'] = btn_bg if e.widget['bg'] == btn_active_bg else op_bg
-
-def press(num):
+# Button action functions
+def click(value):
     global expression
-    if expression == "Error":
-        expression = ""
-    expression += str(num)
-    equation.set(expression)
+    expression += str(value)
+    input_text.set(expression)
 
 def clear():
     global expression
     expression = ""
-    equation.set("0")
+    input_text.set("")
 
-def equalpress():
+def delete():
+    global expression
+    expression = expression[:-1]
+    input_text.set(expression)
+
+def equal():
     global expression
     try:
         result = str(eval(expression))
-        equation.set(result)
+        input_text.set(result)
         expression = result
     except:
-        equation.set("Error")
+        input_text.set("Error")
         expression = ""
 
-def backspace():
+def square_root():
     global expression
-    expression = expression[:-1]
-    if expression == "":
-        equation.set("0")
-    else:
-        equation.set(expression)
+    try:
+        result = str(sqrt(float(expression)))
+        input_text.set(result)
+        expression = result
+    except:
+        input_text.set("Error")
+        expression = ""
 
-def create_button(text, row, column, width=1, command=None, bg=btn_bg, fg=btn_fg):
-    btn = tk.Button(btns_frame, text=text, bg=bg, fg=fg, font=btn_font,
-                    bd=0, relief="flat", command=command, activebackground=btn_active_bg,
-                    activeforeground=fg, cursor="hand2")
-    btn.grid(row=row, column=column, sticky="nsew", padx=8, pady=8, columnspan=width)
-    btn.bind("<Enter>", on_enter)
-    btn.bind("<Leave>", on_leave)
-    return btn
+def percent():
+    global expression
+    try:
+        result = str(float(expression) / 100)
+        input_text.set(result)
+        expression = result
+    except:
+        input_text.set("Error")
+        expression = ""
 
-for i in range(5):
-    btns_frame.rowconfigure(i, weight=1)
-for i in range(4):
-    btns_frame.columnconfigure(i, weight=1)
+def memory_plus():
+    global memory, expression
+    try:
+        memory += float(expression)
+    except:
+        pass
 
-create_button("C", 0, 0, command=clear, bg=op_bg, fg=op_fg)
-create_button("⌫", 0, 1, command=backspace, bg=op_bg, fg=op_fg)
-create_button("÷", 0, 2, command=lambda: press("/"), bg=op_bg, fg=op_fg)
-create_button("×", 0, 3, command=lambda: press("*"), bg=op_bg, fg=op_fg)
+def memory_minus():
+    global memory, expression
+    try:
+        memory -= float(expression)
+    except:
+        pass
 
-create_button("7", 1, 0, command=lambda: press("7"))
-create_button("8", 1, 1, command=lambda: press("8"))
-create_button("9", 1, 2, command=lambda: press("9"))
-create_button("−", 1, 3, command=lambda: press("-"), bg=op_bg, fg=op_fg)
+def memory_recall():
+    global memory, expression
+    expression = str(memory)
+    input_text.set(expression)
 
-create_button("4", 2, 0, command=lambda: press("4"))
-create_button("5", 2, 1, command=lambda: press("5"))
-create_button("6", 2, 2, command=lambda: press("6"))
-create_button("+", 2, 3, command=lambda: press("+"), bg=op_bg, fg=op_fg)
+# Button definitions
+buttons = [
+    ["C", "←", "%", "/"],
+    ["7", "8", "9", "*"],
+    ["4", "5", "6", "-"],
+    ["1", "2", "3", "+"],
+    ["0", ".", "√", "="],
+    ["M+", "M-", "MR", ""]
+]
 
-create_button("1", 3, 0, command=lambda: press("1"))
-create_button("2", 3, 1, command=lambda: press("2"))
-create_button("3", 3, 2, command=lambda: press("3"))
-create_button("=", 3, 3, width=1, command=equalpress, bg=op_bg, fg=op_fg)
+# Style
+btn_font = ("Segoe UI", 16)
+btn_color = "#34495e"
+btn_fg = "#ffffff"
+btn_active = "#2980b9"
 
-create_button("0", 4, 0, width=2, command=lambda: press("0"))
-create_button(".", 4, 2, command=lambda: press("."))
+# Create buttons with grid
+for r, row in enumerate(buttons):
+    for c, btn_text in enumerate(row):
+        if btn_text == "":
+            continue  # skip empty
+        action = lambda x=btn_text: click(x)
+        if btn_text == "C":
+            action = clear
+        elif btn_text == "←":
+            action = delete
+        elif btn_text == "=":
+            action = equal
+        elif btn_text == "√":
+            action = square_root
+        elif btn_text == "%":
+            action = percent
+        elif btn_text == "M+":
+            action = memory_plus
+        elif btn_text == "M-":
+            action = memory_minus
+        elif btn_text == "MR":
+            action = memory_recall
+
+        button = tk.Button(root, text=btn_text, font=btn_font, bg=btn_color, fg=btn_fg,
+                           activebackground=btn_active, activeforeground="white",
+                           bd=0, command=action)
+        button.grid(row=r+1, column=c, sticky="nsew", padx=2, pady=2, ipadx=5, ipady=15)
+
+# Configure grid weights for square layout
+for i in range(6):  # total rows including entry
+    root.grid_rowconfigure(i, weight=1)
+for j in range(4):  # 4 columns
+    root.grid_columnconfigure(j, weight=1)
 
 root.mainloop()
+
+
