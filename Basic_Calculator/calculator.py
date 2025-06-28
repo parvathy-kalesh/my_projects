@@ -7,7 +7,7 @@ expression = ""
 
 # Create main window
 root = tk.Tk()
-root.title("Advanced Calculator")
+root.title("Standard Calculator")
 root.geometry("400x520")
 root.configure(bg="#2c3e50")
 root.resizable(False, False)
@@ -15,11 +15,11 @@ root.resizable(False, False)
 input_text = tk.StringVar()
 
 # Entry field
-entry = tk.Entry(root, textvariable=input_text, font=("Segoe UI", 22), bd=0, bg="#ecf0f1",
-                 fg="#2c3e50", justify="right")
+entry = tk.Entry(root, textvariable=input_text, font=("Segoe UI", 22, "bold"),
+                 bd=0, bg="#ffffff", fg="#2c3e50", justify="right")
 entry.grid(row=0, column=0, columnspan=4, ipadx=8, ipady=20, padx=10, pady=20, sticky="nsew")
 
-# Button action functions
+# Button logic
 def click(value):
     global expression
     expression += str(value)
@@ -84,7 +84,7 @@ def memory_recall():
     expression = str(memory)
     input_text.set(expression)
 
-# Button definitions
+# Button layout
 buttons = [
     ["C", "←", "%", "/"],
     ["7", "8", "9", "*"],
@@ -94,17 +94,17 @@ buttons = [
     ["M+", "M-", "MR", ""]
 ]
 
-# Style
-btn_font = ("Segoe UI", 16)
-btn_color = "#34495e"
-btn_fg = "#ffffff"
-btn_active = "#2980b9"
+# Standard button style
+btn_font = ("Segoe UI", 16, "bold")
+btn_bg = "#bdc3c7"        # Soft grey
+btn_fg = "#2c3e50"        # Dark text
+btn_active = "#95a5a6"    # Slightly darker on click
 
-# Create buttons with grid
+# Button creation using grid
 for r, row in enumerate(buttons):
     for c, btn_text in enumerate(row):
         if btn_text == "":
-            continue  # skip empty
+            continue
         action = lambda x=btn_text: click(x)
         if btn_text == "C":
             action = clear
@@ -117,23 +117,22 @@ for r, row in enumerate(buttons):
         elif btn_text == "%":
             action = percent
         elif btn_text == "M+":
-            action = memory_plus
+            ction = memory_plus
         elif btn_text == "M-":
             action = memory_minus
         elif btn_text == "MR":
             action = memory_recall
 
-        button = tk.Button(root, text=btn_text, font=btn_font, bg=btn_color, fg=btn_fg,
-                           activebackground=btn_active, activeforeground="white",
+        button = tk.Button(root, text=btn_text, font=btn_font, bg=btn_bg, fg=btn_fg,
+                           activebackground=btn_active, activeforeground=btn_fg,
                            bd=0, command=action)
         button.grid(row=r+1, column=c, sticky="nsew", padx=2, pady=2, ipadx=5, ipady=15)
 
-# Configure grid weights for square layout
-for i in range(6):  # total rows including entry
+# Responsive layout
+for i in range(6):  # includes entry row
     root.grid_rowconfigure(i, weight=1)
-for j in range(4):  # 4 columns
+for j in range(4):
     root.grid_columnconfigure(j, weight=1)
 
 root.mainloop()
-
-
+            
