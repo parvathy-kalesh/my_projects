@@ -1,11 +1,11 @@
 import tkinter as tk
 from math import sqrt
 
-# Memory storage
+
 memory = 0
 expression = ""
 
-# Create main window
+
 root = tk.Tk()
 root.title("Standard Calculator")
 root.geometry("400x520")
@@ -14,12 +14,12 @@ root.resizable(False, False)
 
 input_text = tk.StringVar()
 
-# Entry field
+
 entry = tk.Entry(root, textvariable=input_text, font=("Segoe UI", 22, "bold"),
                  bd=0, bg="#ffffff", fg="#2c3e50", justify="right")
 entry.grid(row=0, column=0, columnspan=4, ipadx=8, ipady=20, padx=10, pady=20, sticky="nsew")
 
-# Button logic
+
 def click(value):
     global expression
     expression += str(value)
@@ -94,13 +94,11 @@ buttons = [
     ["M+", "M-", "MR", ""]
 ]
 
-# Standard button style
 btn_font = ("Segoe UI", 16, "bold")
-btn_bg = "#bdc3c7"        # Soft grey
-btn_fg = "#2c3e50"        # Dark text
-btn_active = "#95a5a6"    # Slightly darker on click
+btn_bg = "#bdc3c7"       
+btn_fg = "#2c3e50"        
+btn_active = "#95a5a6"    
 
-# Button creation using grid
 for r, row in enumerate(buttons):
     for c, btn_text in enumerate(row):
         if btn_text == "":
@@ -128,8 +126,8 @@ for r, row in enumerate(buttons):
                            bd=0, command=action)
         button.grid(row=r+1, column=c, sticky="nsew", padx=2, pady=2, ipadx=5, ipady=15)
 
-# Responsive layout
-for i in range(6):  # includes entry row
+
+for i in range(6):  
     root.grid_rowconfigure(i, weight=1)
 for j in range(4):
     root.grid_columnconfigure(j, weight=1)
