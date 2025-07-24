@@ -8,6 +8,7 @@ import os
 
 alarm_triggered = False
 selected_sound = None
+snooze_thread = None   
 
 def update_current_time():
     current_time = datetime.datetime.now().strftime("%I:%M:%S %p")
@@ -28,7 +29,7 @@ def trigger_alarm():
     global alarm_triggered
     alarm_triggered = True
 
-    # Custom non-blocking popup window
+    # Custom popup window
     notify_window = tk.Toplevel(root)
     notify_window.title("Alarm")
     notify_window.geometry("250x100")
@@ -37,11 +38,8 @@ def trigger_alarm():
     notify_window.resizable(False, False)
 
     tk.Label(notify_window, text="⏰ Time's up!", font=("Helvetica", 14, "bold"), bg="#fff8dc", fg="red").pack(expand=True)
-
-    
     notify_window.after(5000, notify_window.destroy)
 
-    
     try:
         if selected_sound and os.path.exists(selected_sound):
             winsound.PlaySound(selected_sound, winsound.SND_FILENAME | winsound.SND_ASYNC)
@@ -87,20 +85,30 @@ def set_alarm():
     threading.Thread(target=alarm_check_thread, args=(alarm_time,), daemon=True).start()
 
 def stop_alarm():
-    global alarm_triggered
+    global alarm_triggered, snooze_thread
     alarm_triggered = True
     winsound.PlaySound(None, winsound.SND_PURGE)
     status_label.config(text="Alarm stopped.")
     stop_button.config(state="disabled")
     snooze_button.config(state="disabled")
 
+  
+    if snooze_thread and snooze_thread.is_alive():
+        snooze_thread = None
+
 def snooze_alarm():
-    global alarm_triggered
+    global alarm_triggered, snooze_thread
     alarm_triggered = True
     winsound.PlaySound(None, winsound.SND_PURGE)
     status_label.config(text="Alarm snoozed for 5 minutes.")
+
     new_time = (datetime.datetime.now() + datetime.timedelta(minutes=5)).strftime("%H:%M:%S")
-    threading.Thread(target=alarm_check_thread, args=(new_time,), daemon=True).start()
+
+    alarm_triggered = False
+
+    snooze_thread = threading.Thread(target=alarm_check_thread, args=(new_time,), daemon=True)  # ✅ store thread
+    snooze_thread.start()
+
     stop_button.config(state="disabled")
     snooze_button.config(state="disabled")
 
@@ -117,7 +125,7 @@ def browse_sound():
         selected_sound = None
         sound_label.config(text="No sound selected")
 
-
+# GUI setup
 root = tk.Tk()
 root.title("Styled Alarm Clock")
 root.geometry("500x420")
@@ -128,7 +136,6 @@ font_label = ("Helvetica", 11)
 font_button = ("Helvetica", 12, "bold")
 
 tk.Label(root, text="Alarm Clock", font=font_title, bg="#f0f8ff", fg="#333").pack(pady=10)
-
 
 time_frame = tk.Frame(root, bg="#f0f8ff")
 time_frame.pack(pady=10)
@@ -150,7 +157,6 @@ am_pm_menu = tk.OptionMenu(time_frame, am_pm_var, "AM", "PM")
 am_pm_menu.config(font=font_label)
 am_pm_menu.grid(row=1, column=3, padx=10)
 
-
 tk.Button(root, text="Choose Alarm Sound ", font=font_button, bg="#e0ffff", command=browse_sound).pack(pady=8)
 sound_label = tk.Label(root, text="No sound selected", fg="blue", bg="#f0f8ff", font=("Helvetica", 10, "italic"))
 sound_label.pack()
@@ -170,5 +176,6 @@ current_time_label.pack()
 
 update_current_time()
 root.mainloop()
+
 
 
